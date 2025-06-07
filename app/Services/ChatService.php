@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\Message;
 use App\Models\User;
+use App\Events\MessageSent;
+
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,6 +18,14 @@ class ChatService
             ->with('contact')
             ->get()
             ->pluck('contact');
+    }
+
+    public function getInvitations(): Collection
+    {
+        return Auth::user()
+            ->invitations()
+            ->where('status', 'pending')
+            ->get();
     }
 
     public function getMessagesWith(User $contact): Collection
@@ -36,10 +46,31 @@ class ChatService
 
     public function sendMessage(User $contact, string $content): Message
     {
-        return Message::create([
+        $message = Message::create([
             'sender_id' => Auth::id(),
             'receiver_id' => $contact->id,
             'content' => $content,
         ]);
+        \Log::info('Message envoyé à', ['receiver_id' => $message->receiver_id]);
+
+        event(new MessageSent($message));
+
+        return $message;
     }
+    public function markMessagesAsDeliveredFrom(User $contact): void
+    {
+        Message::where('sender_id', $contact->id)
+            ->where('receiver_id', Auth::id())
+            ->where('status', 'sent')
+            ->update(['status' => 'delivered']);
+    }
+
+    public function markMessagesAsSeenFrom(User $contact): void
+    {
+        Message::where('sender_id', $contact->id)
+            ->where('receiver_id', Auth::id())
+            ->where('status', 'delivered')
+            ->update(['status' => 'seen']);
+    }
+
 }
