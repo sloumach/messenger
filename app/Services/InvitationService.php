@@ -14,12 +14,10 @@ class InvitationService
         $sender   = Auth::user();
 
         if ($sender->id === $receiver->id) {
-            dd("Vous ne pouvez pas vous inviter vous-même.");
             throw new \Exception("Vous ne pouvez pas vous inviter vous-même.");
         }
 
         if (Invitation::where('sender_id', $sender->id)->where('receiver_id', $receiver->id)->exists()) {
-            dd("Invitation déjà envoyée.");
             throw new \Exception("Invitation déjà envoyée.");
         }
 

@@ -12,6 +12,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class InvitationController extends Controller
 {
     use AuthorizesRequests;
+
     public function __construct(protected InvitationService $invitationService) {}
 
     // Envoyer une invitation
