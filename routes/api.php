@@ -9,16 +9,21 @@ use App\Http\Controllers\Api\MessageApiController;
 use App\Http\Controllers\Api\Auth\LogoutController;
 use App\Http\Controllers\Api\Auth\RegisterController;
 use App\Http\Controllers\Api\InvitationApiController;
+use App\Http\Controllers\Api\Auth\PasswordResetController;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
 
 Broadcast::routes(['middleware' => ['auth:sanctum']]);
+Route::middleware('throttle:3,1')->group(function () {
+    Route::post('/login', LoginController::class);
+    Route::post('/register', RegisterController::class);
+    Route::post('forgot-password', [PasswordResetController::class, 'store'])->name('password.email');
+});
 
-Route::post('/login', LoginController::class);
-Route::post('/register', RegisterController::class);
+
 Route::middleware('auth:sanctum')->post('/logout', LogoutController::class);
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum','verified')->group(function () {
     Route::get('/contacts', [ContactApiController::class, 'index']);
     Route::post('/invitations/{invitation}/accept', [InvitationApiController::class, 'accept']);
     Route::post('/invitations/{invitation}/decline', [InvitationApiController::class, 'decline']);

@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
+use App\Models\User;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Http\Request;
-use App\Models\User;
+use Illuminate\Auth\Events\Registered;
 
 
 class RegisterController extends Controller
@@ -23,12 +24,9 @@ class RegisterController extends Controller
             'email'    => $validated['email'],
             'password' => Hash::make($validated['password']),
         ]);
-
-        $token = $user->createToken('mobile')->plainTextToken;
-
+        event(new Registered($user));
         return response()->json([
-            'token' => $token,
-            'user'  => $user,
-        ], 201);
+                'message' => 'Inscription réussie. Veuillez vérifier votre email.',
+            ], 201);
     }
 }

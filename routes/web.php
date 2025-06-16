@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 Route::view('/', 'welcome');
 
 // Routes protégées par auth
-Route::middleware('auth')->group(function () {
+Route::middleware('auth','verified')->group(function () {
 
     // Dashboard (alias du chat index)
     Route::get('/dashboard', [ChatController::class, 'index'])->name('dashboard');

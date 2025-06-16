@@ -22,6 +22,10 @@ class LoginController extends Controller
             }
 
             $user = Auth::user();
+            if (!$user->hasVerifiedEmail()) {
+                return response()->json(['message' => 'Verify your email'], 403);
+            }
+
             $token = $user->createToken('mobile')->plainTextToken;
 
             return response()->json([
