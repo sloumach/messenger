@@ -13,8 +13,18 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+
     })
+    ->withBroadcasting(
+    channels: __DIR__ . '/../routes/channels.php',
+    attributes: [
+        'middleware' => [
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            'auth:sanctum',
+        ],
+    ],
+)
+
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();

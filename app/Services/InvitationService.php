@@ -46,6 +46,6 @@ class InvitationService
 
     public function declineInvitation(Invitation $invitation): void
     {
-        $invitation->update(['status' => 'declined']);
+        $invitation->delete();
     }
 }

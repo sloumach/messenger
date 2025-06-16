@@ -25,23 +25,36 @@ class ChatService
         return Auth::user()
             ->invitations()
             ->where('status', 'pending')
+            ->with('sender:id,name,email')
+            ->where('status', 'pending')
             ->get();
     }
 
     public function getMessagesWith(User $contact): Collection
     {
         $userId = Auth::id();
+        $before = request()->query('before'); // timestamp ou message_id
+        $limit = 20;
 
-        return Message::where(function ($q) use ($userId, $contact) {
+        $query = Message::where(function ($q) use ($userId, $contact) {
                 $q->where('sender_id', $userId)
-                  ->where('receiver_id', $contact->id);
+                ->where('receiver_id', $contact->id);
             })
             ->orWhere(function ($q) use ($userId, $contact) {
                 $q->where('sender_id', $contact->id)
-                  ->where('receiver_id', $userId);
-            })
-            ->orderBy('created_at')
-            ->get();
+                ->where('receiver_id', $userId);
+            });
+
+        // Si on veut charger les messages *avant* un certain ID ou date
+        if ($before) {
+            $query->where('created_at', '<', $before);
+        }
+
+        return $query
+            ->orderBy('created_at', 'desc') // on trie du plus récent au plus ancien
+            ->take($limit)
+            ->get()
+            ->reverse(); // on les renvoie dans l’ordre du plus ancien au plus récent
     }
 
     public function sendMessage(User $contact, string $content): Message
