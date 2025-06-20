@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Message;
 use App\Models\User;
 use App\Events\MessageSent;
+use App\Services\FirebaseNotificationService; // 🔁 ajoute ce use
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -67,7 +68,14 @@ class ChatService
         \Log::info('Message envoyé à', ['receiver_id' => $message->receiver_id]);
 
         event(new MessageSent($message));
-
+ // 🔔 Envoi de la notification FCM
+        if ($contact->fcm_token) {
+            app(FirebaseNotificationService::class)->sendToDevice(
+                $contact->fcm_token,
+                "Message de ".Auth::user()->name,
+                $content
+            );
+        }
         return $message;
     }
     public function markMessagesAsDeliveredFrom(User $contact): void

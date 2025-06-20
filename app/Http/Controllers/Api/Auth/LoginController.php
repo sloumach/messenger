@@ -22,6 +22,10 @@ class LoginController extends Controller
             }
 
             $user = Auth::user();
+            if ($request->filled('fcm_token')) {
+                $user->fcm_token = $request->fcm_token;
+                $user->save();
+            }
             if (!$user->hasVerifiedEmail()) {
                 return response()->json(['message' => 'Verify your email'], 403);
             }
