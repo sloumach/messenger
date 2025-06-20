@@ -24,7 +24,6 @@ Route::middleware('throttle:3,1')->group(function () {
 
 Route::middleware('auth:sanctum')->post('/logout', LogoutController::class);
 Route::middleware('auth:sanctum')->post('/update-fcm-token', [FcmTokenController::class, 'update']);
-Route::middleware('auth:sanctum')->post('/store-token', [FcmTokenController::class, 'storeFcmToken']);
 
 
 Route::middleware('auth:sanctum','verified')->group(function () {
